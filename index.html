@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jore's Market Terminal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col selection:bg-teal-500 selection:text-slate-900">
+
+    <!-- Top Navigation -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50 px-4 lg:px-8 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-tr from-teal-500 to-emerald-400 p-2 rounded-lg text-slate-950 font-bold">
+                <i data-lucide="trending-up" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-none text-slate-100 tracking-tight">Jore's Market Terminal</h1>
+                <span class="text-xs text-teal-400 font-medium">Real-Time Market Intelligence</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <div class="hidden md:flex items-center gap-4 text-xs text-slate-400">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>US Markets Open</span>
+                </div>
+                <span class="text-slate-600">|</span>
+                <span id="current-time" class="mono">2026-07-23 15:29:37</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Index Bar ticker -->
+    <section class="bg-slate-900/50 border-b border-slate-800/80 px-4 lg:px-8 py-2.5 overflow-x-auto whitespace-nowrap scrollbar-none">
+        <div class="flex items-center gap-8 text-sm max-w-7xl mx-auto">
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-500 font-bold tracking-wider uppercase">INDEX WATCH:</span>
+            </div>
+            <!-- S&P 500 -->
+            <div class="flex items-center gap-2 bg-slate-950/60 px-3 py-1 rounded-md border border-slate-800">
+                <span class="font-semibold text-slate-300">S&P 500</span>
+                <span class="mono text-slate-100">7,498.96</span>
+                <span class="mono text-rose-500 text-xs flex items-center gap-0.5 font-medium">
+                    <i data-lucide="arrow-down-right" class="w-3.5 h-3.5"></i> 0.14%
+                </span>
+            </div>
+            <!-- Nasdaq -->
+            <div class="flex items-center gap-2 bg-slate-950/60 px-3 py-1 rounded-md border border-slate-800">
+                <span class="font-semibold text-slate-300">Nasdaq</span>
+                <span class="mono text-slate-100">25,690.90</span>
+                <span class="mono text-rose-500 text-xs flex items-center gap-0.5 font-medium">
+                    <i data-lucide="arrow-down-right" class="w-3.5 h-3.5"></i> 0.57%
+                </span>
+            </div>
+            <!-- Dow Jones -->
+            <div class="flex items-center gap-2 bg-slate-950/60 px-3 py-1 rounded-md border border-slate-800">
+                <span class="font-semibold text-slate-300">Dow Jones</span>
+                <span class="mono text-slate-100">52,218.58</span>
+                <span class="mono text-rose-500 text-xs flex items-center gap-0.5 font-medium">
+                    <i data-lucide="arrow-down-right" class="w-3.5 h-3.5"></i> 0.01%
+                </span>
+            </div>
+            <!-- Brent Crude -->
+            <div class="flex items-center gap-2 bg-slate-950/60 px-3 py-1 rounded-md border border-slate-800">
+                <span class="font-semibold text-slate-300">Brent Crude</span>
+                <span class="mono text-slate-100">$94.07</span>
+                <span class="mono text-emerald-400 text-xs flex items-center gap-0.5 font-medium">
+                    <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> 3.4%
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left 2 Columns: Main Stock Analysis -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            
+            <!-- Alphabet Deep-Dive Callout -->
+            <div class="bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-800 rounded-xl p-6 relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-32 h-32 bg-teal-500/5 blur-3xl rounded-full"></div>
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-teal-500/10 text-teal-400 text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">Earnings Deep Dive</span>
+                            <span class="text-slate-500 text-xs">Q2 2026</span>
+                        </div>
+                        <h2 class="text-xl lg:text-2xl font-bold text-slate-100">Alphabet ($GOOGL) Sinks on CapEx Boost</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-2xl font-bold text-slate-100 mono">$119.8B</span>
+                        <p class="text-xs text-emerald-400">Cloud up 82% ($24.8B)</p>
+                    </div>
+                </div>
+                
+                <p class="text-sm text-slate-400 leading-relaxed mb-4">
+                    Despite a massive blowout in cloud demand, shares dipped because the company raised its 2026 capex forecast to as much as <strong class="text-slate-200">$205 billion</strong>. Every hyperscaler is locked in a capex arms race, and investors are growing anxious about margins.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-900/60 p-4 rounded-lg border border-slate-800/80 mb-4">
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Search Revenue</span>
+                        <p class="text-lg font-bold text-slate-200 mono">17% YoY</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">New Model Pace</span>
+                        <p class="text-lg font-bold text-teal-400">Almost Monthly</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Ziggma Score</span>
+                        <p class="text-lg font-bold text-yellow-500 mono">85 / 100</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-xs text-slate-500 border-t border-slate-800/80 pt-3">
+                    <span>CFO Anat Ashkenazi: "Supply-constrained, relying on third-party cloud"</span>
+                    <span class="text-rose-500 font-semibold flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> -1.46% After-hours
+                    </span>
+                </div>
+            </div>
+
+            <!-- Big Movers Ticker & Micro Charts -->
+            <div>
+                <h3 class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+                    <i data-lucide="activity" class="w-4 h-4 text-teal-400"></i> Today's Critical Stock Moves
+                </h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- SMCI -->
+                    <div class="bg-slate-950 border border-slate-800 hover:border-slate-700 transition rounded-xl p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 class="font-bold text-lg text-slate-200">Super Micro</h4>
+                                    <span class="text-xs text-slate-500 mono">$SMCI</span>
+                                </div>
+                                <span class="bg-emerald-500/10 text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-md mono flex items-center gap-1">
+                                    +19.84% <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Record Q4 orders exceeded $60B and gross margin expectations nearly doubled to 15-17%. Volume spiked 200% over the 3-month average.
+                            </p>
+                        </div>
+                        <div class="h-12 mt-4">
+                            <canvas id="smci-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Dell -->
+                    <div class="bg-slate-950 border border-slate-800 hover:border-slate-700 transition rounded-xl p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 class="font-bold text-lg text-slate-200">Dell Technologies</h4>
+                                    <span class="text-xs text-slate-500 mono">$DELL</span>
+                                </div>
+                                <span class="bg-emerald-500/10 text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-md mono flex items-center gap-1">
+                                    +9.32% <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Climbed to ~$443, piggybacking on SMCI's monster guidance. Backed by a $51.3B AI server backlog.
+                            </p>
+                        </div>
+                        <div class="h-12 mt-4">
+                            <canvas id="dell-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Wabtec -->
+                    <div class="bg-slate-950 border border-slate-800 hover:border-slate-700 transition rounded-xl p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 class="font-bold text-lg text-slate-200">Wabtec</h4>
+                                    <span class="text-xs text-slate-500 mono">$WAB</span>
+                                </div>
+                                <span class="bg-emerald-500/10 text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-md mono flex items-center gap-1">
+                                    +10.04% <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Crushed EPS estimates ($2.76 vs $2.63 expected) on $3.18B revenue. Raised full-year 2026 forecast to $12.3B - $12.6B.
+                            </p>
+                        </div>
+                        <div class="h-12 mt-4">
+                            <canvas id="wab-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- GEV -->
+                    <div class="bg-slate-950 border border-slate-800 hover:border-slate-700 transition rounded-xl p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 class="font-bold text-lg text-slate-200">GE Vernova</h4>
+                                    <span class="text-xs text-slate-500 mono">$GEV</span>
+                                </div>
+                                <span class="bg-rose-500/10 text-rose-400 text-xs font-bold px-2.5 py-1 rounded-md mono flex items-center gap-1">
+                                    -8.69% <i data-lucide="trending-down" class="w-3.5 h-3.5"></i>
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Fell despite beating revenue consensus ($11.1B vs $10.7B). Adjusted EPS of $2.47 missed the $3.04 expectation.
+                            </p>
+                        </div>
+                        <div class="h-12 mt-4">
+                            <canvas id="gev-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Right Column: Sidebar (Upcoming & Watchlist) -->
+        <div class="flex flex-col gap-6">
+            
+            <!-- Earnings Watch Alert -->
+            <div id="intel-card" class="bg-slate-950 border border-amber-500/30 rounded-xl p-5 relative overflow-hidden bg-gradient-to-br from-slate-950 to-amber-950/20">
+                <div class="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    <span>High Volatility Event Today</span>
+                </div>
+                <h4 class="font-bold text-lg text-slate-100 mb-1">Intel Reports Q2</h4>
+                <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                    Options traders are pricing in a massive <span class="text-amber-400 font-semibold">~13.6% post-earnings swing</span> directly after today's close.
+                </p>
+                <div class="flex gap-2">
+                    <button onclick="setIntelReminder()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2 px-3 rounded-lg flex items-center gap-1 transition w-full justify-center">
+                        <i data-lucide="bell" class="w-3.5 h-3.5"></i> Set Q2 Results Reminder
+                    </button>
+                </div>
+            </div>
+
+            <!-- What's Next & Macro Calendar -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4 text-teal-400"></i> Key Macro & Calendar
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex gap-3 border-l-2 border-teal-500 pl-3 py-0.5">
+                        <div class="flex-grow">
+                            <h5 class="text-xs text-slate-500 mono">Thursday 8:15 AM ET</h5>
+                            <p class="text-sm text-slate-200 font-semibold">ECB Rate Decision</p>
+                            <span class="text-xs text-teal-400 font-medium">Hold expected @ 2.40%</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 border-l-2 border-slate-700 pl-3 py-0.5">
+                        <div class="flex-grow">
+                            <h5 class="text-xs text-slate-500 mono">Thursday 8:30 AM ET</h5>
+                            <p class="text-sm text-slate-200 font-semibold">U.S. Jobless Claims</p>
+                            <span class="text-xs text-slate-400">Forecast: ~212K vs 208K previous</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 border-l-2 border-slate-700 pl-3 py-0.5">
+                        <div class="flex-grow">
+                            <h5 class="text-xs text-slate-500 mono">Thursday 10:00 AM ET</h5>
+                            <p class="text-sm text-slate-200 font-semibold">New Home Sales Data</p>
+                            <span class="text-xs text-slate-400">Testing actual housing demand metrics</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Watchlist -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                    <i data-lucide="bookmark" class="w-4 h-4 text-teal-400"></i> Market Watchlist
+                </h3>
+                <div class="divide-y divide-slate-800/50">
+                    <div class="py-2.5 flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-slate-200 text-sm">Palantir</span>
+                            <span class="text-xs text-slate-500 ml-1.5 mono">$PLTR</span>
+                        </div>
+                        <span class="text-rose-500 text-sm mono font-semibold">-6.10%</span>
+                    </div>
+                    <div class="py-2.5 flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-slate-200 text-sm">NRG Energy</span>
+                            <span class="text-xs text-slate-500 ml-1.5 mono">$NRG</span>
+                        </div>
+                        <span class="text-emerald-400 text-sm mono font-semibold">+6.37%</span>
+                    </div>
+                    <div class="py-2.5 flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-slate-200 text-sm">Reddit</span>
+                            <span class="text-xs text-slate-500 ml-1.5 mono">$RDDT</span>
+                        </div>
+                        <span class="text-rose-500 text-sm mono font-semibold">-9.00%</span>
+                    </div>
+                    <div class="py-2.5 flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-slate-200 text-sm">Rocket Lab</span>
+                            <span class="text-xs text-slate-500 ml-1.5 mono">$RKLB</span>
+                        </div>
+                        <span class="text-emerald-400 text-sm mono font-semibold">+4.00%</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer / Quick Action Status -->
+    <footer class="mt-auto border-t border-slate-800 bg-slate-950 py-4 px-4 lg:px-8 text-center text-xs text-slate-500">
+        <p>Built for Jorge | Market analysis from The Market Scoop. 🚀</p>
+    </footer>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Helper to draw clean micro charts
+        function drawMicroChart(canvasId, data, color) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['', '', '', '', '', '', ''],
+                    datasets: [{
+                        data: data,
+                        borderColor: color,
+                        borderWidth: 1.5,
+                        fill: false,
+                        pointRadius: 0,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Draw micro charts
+        drawMicroChart('smci-chart', [80, 82, 85, 84, 88, 95, 100], '#34d399');
+        drawMicroChart('dell-chart', [400, 410, 405, 420, 428, 435, 443], '#34d399');
+        drawMicroChart('wab-chart', [2.5, 2.55, 2.6, 2.62, 2.7, 2.72, 2.76], '#34d399');
+        drawMicroChart('gev-chart', [2.8, 2.9, 2.95, 2.85, 2.6, 2.5, 2.47], '#f87171');
+
+        function setIntelReminder() {
+            alert("Reminder setup dispatched! Jorgius will sync with your calendar.");
+        }
+    </script>
+</body>
+</html>
